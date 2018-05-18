@@ -22,7 +22,19 @@ const createURL = state => `?${qs.stringify(state)}`;
 
 const searchStateToUrl = (props, searchState) =>
   searchState ? `${props.location.pathname}${createURL(searchState)}` : '';
-const urlToSearchState = location => qs.parse(location.search.slice(1));
+
+const urlToSearchState = location => {
+  const searchState = qs.parse(location.search.slice(1));
+
+  if (searchState.configure && searchState.configure.hitsPerPage) {
+    searchState.configure.hitsPerPage = parseInt(
+      searchState.configure.hitsPerPage,
+      10
+    );
+  }
+
+  return searchState;
+};
 
 class App extends Component {
   constructor(props) {
@@ -73,9 +85,9 @@ class App extends Component {
         onSearchStateChange={this.onSearchStateChange}
         createURL={createURL}
       >
-        <button onClick={this.handleHits} value="3">Show 3 per page</button>
-        <button onClick={this.handleHits} value="6">Show 6 per page</button>
-        <button onClick={this.handleHits} value="9">Show 9 per page</button>
+        <button onClick={this.handleHits} value={3}>Show 3 per page</button>
+        <button onClick={this.handleHits} value={6}>Show 6 per page</button>
+        <button onClick={this.handleHits} value={9}>Show 9 per page</button>
 
         <br />
         <br />
