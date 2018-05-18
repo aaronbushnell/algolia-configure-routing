@@ -21,7 +21,19 @@ const createURL = state => `?${qs.stringify(state)}`;
 
 const searchStateToUrl = (props, searchState) =>
   searchState ? `${props.location.pathname}${createURL(searchState)}` : '';
-const urlToSearchState = location => qs.parse(location.search.slice(1));
+
+const urlToSearchState = location => {
+  const searchState = qs.parse(location.search.slice(1));
+
+  if (searchState.configure && searchState.configure.hitsPerPage) {
+    searchState.configure.hitsPerPage = parseInt(
+      searchState.configure.hitsPerPage,
+      10
+    );
+  }
+
+  return searchState;
+};
 
 const CustomHitsPerPage = connectHitsPerPage(({ items, refine }) => (
   <div>
