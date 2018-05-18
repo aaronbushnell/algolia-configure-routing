@@ -8,12 +8,11 @@ import {
   PoweredBy,
   RatingMenu,
   RefinementList,
-  Configure,
   SearchBox,
   ClearRefinements,
 } from 'react-instantsearch/dom';
+import { connectHitsPerPage } from 'react-instantsearch/connectors'
 import PropTypes from 'prop-types';
-import cloneDeep from 'lodash.clonedeep';
 import qs from 'qs';
 
 const updateAfter = 700;
@@ -36,6 +35,16 @@ const urlToSearchState = location => {
   return searchState;
 };
 
+const CustomHitsPerPage = connectHitsPerPage(({ items, refine }) => (
+  <div>
+    {items.map(item => (
+      <button key={item.value} onClick={() => refine(item.value)}>
+        Show {item.value} per page
+      </button>
+    ))}
+  </div>
+));
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -43,8 +52,6 @@ class App extends Component {
     this.state = {
       searchState: urlToSearchState(props.location),
     };
-
-    this.handleHits = this.handleHits.bind(this);
   }
 
   componentWillReceiveProps(props) {
@@ -64,17 +71,6 @@ class App extends Component {
     this.setState({ searchState });
   };
 
-
-  handleHits(ev) {
-    let myObj = cloneDeep(this.state.searchState);
-
-    myObj.configure = {
-      hitsPerPage: ev.target.value
-    };
-
-    this.setState({searchState: myObj});
-  }
-
   render() {
     return (
       <InstantSearch
@@ -85,21 +81,18 @@ class App extends Component {
         onSearchStateChange={this.onSearchStateChange}
         createURL={createURL}
       >
-        <button onClick={this.handleHits} value={3}>Show 3 per page</button>
-        <button onClick={this.handleHits} value={6}>Show 6 per page</button>
-        <button onClick={this.handleHits} value={9}>Show 9 per page</button>
-
-        <br />
-        <br />
-        <br />
-
-        <Configure
-          hitsPerPage={
-            this.state.searchState.configure &&
-            this.state.searchState.configure.hitsPerPage ?
-              this.state.searchState.configure.hitsPerPage : 3
-          }
+        <CustomHitsPerPage
+          defaultRefinement={3}
+          items={[
+            { value: 3 },
+            { value: 6 },
+            { value: 9 },
+          ]}
         />
+
+        <br />
+        <br />
+        <br />
 
         <div>
           <div
